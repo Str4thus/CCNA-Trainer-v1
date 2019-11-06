@@ -1,0 +1,163 @@
+{% extends 'trainer/base.html'%}
+
+{% block top %}
+<!-- <button id="back-button" class="btn btn-warning"> Back! </button> -->
+{% endblock top %}
+
+
+
+{% block question %}
+
+{% block question-top %}
+{% endblock question-top %}
+
+<div id="quiz-wrapper">
+    <h1 id="title" class="display-3"> {{ question.question_text }}</h1>
+
+    {% if question.has_image %}
+    <div id="quiz-image">
+        <img src="{{question.image_url}}" alt="Quiz Image">
+    </div>
+    {% endif %}
+
+    {% if is_multiple_choice  %}
+    <div id="choices" class="list-group">
+        {% for answer in answers %}
+        <button class="choice text-center list-group-item list-group-item-action">{{ answer.answer_text }} </button>
+        {% endfor %}
+    </div>
+    {% elif question.question_type == "fill" %}
+    <div id="choices" class="list-group">
+        <div id="fill-solution" class="text-center">
+            <p id="fill-solution-text"> Solution </p>
+        </div>
+
+        <input id="input-field" type="text">
+    </div>
+    {% else %}
+    <div id="solution-image">
+        <img src="{{ answer_image_url }}" alt="Solution Image">
+    </div>
+
+    {% endif %}
+
+    <div id="controls-wrapper" class="btn-group-vertical">
+        <div id="controls" class="btn-group" role="group">
+            <button id="previous" class="btn btn-primary">&lt;</button>
+
+            {% if is_multiple_choice or question.question_type == "fill" %}
+
+            <button id="confirm" class="btn btn-info"> Confirm </button>
+            {% else %}
+
+            <button id="reveal" class="btn btn-info"> Reveal Solution </button>
+            {% endif %}
+
+            <button id="next" class="btn btn-primary">&gt;</button>
+
+            {% if is_training %}
+            <button id="random-button" class="btn btn-danger"> Random </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock question %}
+
+{% block scripts %}
+<script>
+    let chosenAnswers = [];
+
+    $(document).ready(function () {
+        $.ajax({
+            type: "POST",
+            url: getIndexOfQuestionEndpoint(),
+            data: {
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+                "questionId": {{ question.question_number }},
+            },
+        success: function (data) {
+            if (data["index"] != "") { // occurs when invalid url has been entered
+                setCookie("currentQuestionIndex", data["index"], 1);
+            }
+        },
+        });
+    });
+
+    $("#solution-image").hide();
+
+    $("#fill-solution").hide();
+
+
+    $(".choice").on("click", function (event) {
+        $(event.target).toggleClass("active");
+
+        let selectedChoices = document.getElementsByClassName("active")
+        chosenAnswers = []
+        for (let i = 0; i < selectedChoices.length; i++) {
+            chosenAnswers.push($(selectedChoices[i]).html().trim());
+        }
+    });
+
+    $("#input-field").on("input", function (event) {
+        chosenAnswers = [$("#input-field").val()];
+    });
+
+    $("#reveal").on("click", function () {
+        $("#solution-image").toggle(500);
+    });
+
+    $("#confirm").on("click", function () {
+        $.ajax({
+            method: "POST",
+            data: {
+                "question_id": parseInt("{{ question.question_number }}"),
+                "chosenAnswers": chosenAnswers,
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+            },
+            url: getQuestionEvaluationEndpoint(),
+            success: function (data) {
+                revealSolutions(data["answers"])
+                /*if (data["correct"]) {
+                    console.log("correct!");
+                } else {
+                    console.log("wrong!");
+                }*/
+            },
+
+        })
+    });
+
+    $("#previous").on("click", function () {
+        switchQuestion(false);
+    });
+
+    $("#next").on("click", function () {
+        switchQuestion(true);
+    });
+
+    $("#back-button").on("click", function () {
+        window.location = getDashboardEndpoint();
+    });
+
+    function revealSolutions(answers) {
+        let choices = document.getElementsByClassName("choice");
+        if (choices.length > 1) {  // is multiple choice
+            for (let i = 0; i < choices.length; i++) {
+                for (let j = 0; j < answers.length; j++) {
+                    if ($(choices[i]).html().trim().toLowerCase() == answers[j].trim().toLowerCase()) {
+                        $(choices[i]).addClass("correct");
+                    }
+                }
+            }
+        } else { // is fill in the word
+            $("#fill-solution").show();
+            $("#fill-solution-text").html("Solution: " + answers[0]);
+        }
+    }
+</script>
+
+
+{% block question-scripts %}
+{% endblock question-scripts %}
+
+{% endblock scripts %}

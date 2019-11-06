@@ -1,0 +1,139 @@
+{% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{% static 'trainer/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'trainer/css/dashboard.css' %}">
+    <!-- <link rel="icon" href="trainer/img/favicon.ico"> -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <title>CNNA Trainer</title>
+</head>
+
+<body>
+    <header>
+        {% block top %}
+        {% endblock top %}
+    </header>
+
+    <div class="content">
+        {% block question %}
+        {% endblock question %}
+
+        {% block content %}
+        {% endblock content %}
+    </div>
+
+    <footer>
+        {% block bottom %}
+        {% endblock bottom %}
+    </footer>
+
+    <script>
+        let currentQuestionId = -1;
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                let cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = jQuery.trim(cookies[i]);
+
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // General Endpoints
+        function getDashboardEndpoint() {
+            return "/";
+        }
+
+        function getQuestionEvaluationEndpoint() {
+            return "/question/evaluate/";
+        }
+
+        function getNavigationEndpoint() {
+            return "/switch/";
+        }
+
+        // Quiz Endpoints
+        function getQuizEndpoint() {
+            return "/quiz/";
+        }
+
+        function getQuizCreationEndpoint() {
+            return "/quiz/create/";
+        }
+
+        function getQuizEvaluationEndpoint() {
+            return "/quiz/evaluate/";
+        }
+
+        function getIndexOfQuestionEndpoint() {
+            return "/question/index/"
+        }
+
+        // Training Endpoints
+        function getTrainingQuestionEndpoint(question) {
+            console.log("yeet");
+            $.ajax({
+                type: "POST",
+                url: getIndexOfQuestionEndpoint(),
+                data: {
+                    "csrfmiddlewaretoken": getCookie('csrftoken'),
+                    "questionId": question,
+                },
+                success: function(data) {
+                    setCookie("currentQuestionIndex", String(data["index"]), 1);
+                },
+            });
+            return "/train/" + parseInt(question) + "/";
+        }
+
+        function getTrainingStartEndpoint() {
+            return "/train/";
+        }
+
+        // Database Endpoints
+        function getSyncEndpoint() {
+            return "/sync/";
+        }
+
+    </script>
+
+    {% block scripts %}
+    {% endblock scripts %}
+</body>
+
+</html>

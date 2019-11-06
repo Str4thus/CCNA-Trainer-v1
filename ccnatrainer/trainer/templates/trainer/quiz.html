@@ -1,0 +1,25 @@
+{% extends 'trainer/question.html' %}
+
+{% block question-top %}
+<h1> Quiz! </h1>
+{% endblock question-top %}
+
+
+
+{% block question-scripts %}
+<script>
+    function switchQuestion(toNext) {
+        $.ajax({
+            method: "POST",
+            url: getNavigationEndpoint(),
+            data: {
+                "toNext": toNext ? 1 : 0,
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+            },
+            success: function (data) {
+                location.reload();
+            }
+        })
+    }
+</script>
+{% endblock question-scripts %}

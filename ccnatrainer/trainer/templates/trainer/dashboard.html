@@ -1,0 +1,58 @@
+{% extends 'trainer/base.html' %}
+
+{% block content %}
+<!-- <button id="quiz-button" class="btn btn-warning"> Start Quiz! </button> -->
+<div id="info" class="container">
+    <div class="jumbotron">
+        <h1 class="display-3"> CCNA Trainer</h1>
+        <p>There are a total of 198 questions in the (C)isco (C)ertified (N)etwork (A)ssociate final exam for the second
+            semester.</p>
+        <p>
+            However, in this app are only 196 questions available. The website where I scraped the questions and answers
+            from had two questions without an answer. Some questions still may have an invalid solution due to the HTML structure of the website the data comes from.
+        </p>
+        <p style="color: red;">If you find any bugs in the app or errors in the questions/answers please let me know!</p>
+        <p> All the data comes from
+            <a href="https://itexamanswers.net/ccna-2-v6-0-final-exam-answers-routing-switching-essentials.html">
+                https://itexamanswers.net/ccna-2-v6-0-final-exam-answers-routing-switching-essentials.html</a>
+
+        </p>
+        <button id="training-button" class="btn btn-info"> Start Training! </button>
+    </div>
+</div>
+{% endblock content %}
+
+
+
+{% block scripts %}
+<script>
+    /*
+    $("#quiz-button").on("click", function () {
+        $.ajax({
+            method: "POST",
+            url: getQuizCreationEndpoint(),
+            data: {
+                "size": 10, // TODO Change value to user input
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+            },
+            success: function (data) {
+                window.location = "/quiz/";
+            },
+        });
+    })*/
+
+    $("#training-button").on("click", function () {
+        $.ajax({
+            method: "POST",
+            url: getTrainingStartEndpoint(),
+            data: {
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+            },
+            success: function (data) {
+                window.location = getTrainingQuestionEndpoint(data["id"]);
+            },
+        });
+    })
+
+</script>
+{% endblock scripts %}

@@ -6,13 +6,15 @@ volumes:
 services:
   webapp:
     build:
-      context: ./app
+      context: ./ccnatrainer
       dockerfile: Dockerfile
     environment:
       - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
     volumes:
       - static_files:/static_files
-    command: gunicorn -w 4 app.wsgi -b 0.0.0.0:8000
+    command: gunicorn -w 4 ccnatrainer.wsgi -b 0.0.0.0:8000
 
   nginx:
     build:
@@ -22,3 +24,4 @@ services:
       - static_files:/static_files
     ports:
       - 80:80
+      - 443:443

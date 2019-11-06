@@ -1,0 +1,52 @@
+{% extends "trainer/question.html" %}
+
+
+{% block content %}
+{% endblock content %}
+
+
+{% block question-scripts %}
+<script>
+    // Controls
+    function switchQuestion(toNext) {
+        $.ajax({
+            method: "POST",
+            url: getNavigationEndpoint(),
+            data: {
+                "toNext": toNext ? 1 : 0,
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+                "index": getCookie("currentQuestionIndex"),
+            },
+            success: function (data) {
+                setCookie("currentQuestionIndex", data["index"], 1);
+                window.location = getTrainingQuestionEndpoint(data["id"]);
+            }
+        })
+    }
+
+    function switchRandomQuestion() {
+        $.ajax({
+            method: "POST",
+            url: getNavigationEndpoint(),
+            data: {
+                "isRandom": 1,
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+            },
+            success: function (data) {
+                setCookie("currentQuestionIndex", data["index"], 1);
+                window.location = getTrainingQuestionEndpoint(data["id"]);
+            }
+        })
+    }
+
+    $(document).ready(function () {
+        let randomButtom = $("#random-button").detach();
+        $("#controls-wrapper").append(randomButtom);
+    })
+
+    $("#random-button").on("click", function() {
+        switchRandomQuestion();
+    });
+
+</script>
+{% endblock question-scripts %}

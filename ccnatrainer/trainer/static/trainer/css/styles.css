@@ -1,0 +1,53 @@
+button:focus {
+    user-select: none;
+    border-color: none;
+    outline: none;
+}
+
+#title {
+    text-align: center;
+    font-size: 3vh;
+    width: 80%;
+    margin-left: 10%;
+}
+
+#choices {
+    width: 60%;
+    margin-top: 2%;
+    margin-left: 20%;
+}
+
+#solution-image, #quiz-image {
+    margin-top: 2%;
+    text-align: center;
+}
+
+img {
+    height: 40vh;
+    width: auto;
+}
+
+#controls-wrapper {
+    margin-left: 20%;
+    display: flex;
+    width: 60%;
+}
+
+
+#confirm {
+    width: 80%;
+}
+
+#previous {
+    width: 10%;
+}
+
+#next {
+    width: 10%;
+}
+
+
+.correct {
+    border-color: rgb(63, 207, 63) !important;
+    border-width: 0.3em;
+}
